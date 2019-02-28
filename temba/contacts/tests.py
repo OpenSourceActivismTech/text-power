@@ -4433,6 +4433,37 @@ class ContactTest(TembaTest):
         self.assertFalse(ChannelEvent.objects.filter(contact=self.frank))
         self.assertFalse(ChannelEvent.objects.filter(id=event.id))
 
+    def test_contact_read_with_contactfields(self):
+        self.login(self.admin)
+
+        response = self.client.get(reverse("contacts.contact_read", args=[self.joe.uuid]))
+
+        self.assertEqual(len(response.context_data["featured_contact_fields"]), 0)
+        self.assertEqual(len(response.context_data["normal_contact_fields"]), 0)
+
+        # create some contact fields
+        ContactField.get_or_create(self.org, self.admin, "first", "First", priority=10)
+        ContactField.get_or_create(self.org, self.admin, "second", "Second")
+        ContactField.get_or_create(self.org, self.admin, "third", "Third", priority=20)
+
+        # update ContactField data
+        self.joe.set_field(self.admin, "first", "a simple value")
+
+        response = self.client.get(reverse("contacts.contact_read", args=[self.joe.uuid]))
+
+        # there should be one 'normal' field
+        self.assertEqual(len(response.context_data["featured_contact_fields"]), 0)
+        self.assertEqual(len(response.context_data["normal_contact_fields"]), 1)
+
+        # make 'third' field a featured field, but don't assign a value (it should still be visible on the page)
+        ContactField.get_or_create(self.org, self.admin, "third", "Third", priority=20, show_in_table=True)
+
+        response = self.client.get(reverse("contacts.contact_read", args=[self.joe.uuid]))
+
+        # there should be one 'normal' field and one 'featured' contact field
+        self.assertEqual(len(response.context_data["featured_contact_fields"]), 1)
+        self.assertEqual(len(response.context_data["normal_contact_fields"]), 1)
+
     def test_contact_language_update(self):
         self.login(self.admin)
 

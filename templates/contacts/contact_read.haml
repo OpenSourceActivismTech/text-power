@@ -73,6 +73,13 @@
           -else
             %a.btn.btn-primary.btn-mini{href:"{% url 'contacts.contact_filter' group.uuid %}"}
               = group.name
+    %div.header-margin
+      %span.badge.badge-secondary
+        {% trans "Created On" %}:
+        -pretty_datetime contact.created_on
+      %span.badge.badge-secondary
+        {% trans "Language" %}:
+        {{ contact_language }}
 
 -block read-buttons
 
@@ -85,28 +92,30 @@
   </style>
   <![endif]-->
 
-  -if contact_fields
+  -if featured_contact_fields or normal_contact_fields
     .contact-fields
       .featured
-        -for field in contact_fields
-          -if field.value and field.featured
-            .contact-field{data-id:'{{field.id}}'}
-              .contact-field-label
-                {{field.label|title}}
-              .contact-field-value
-                {{field.value}}
+        -for field in featured_contact_fields
+          .contact-field{data-id:'{{field.id}}'}
+            .contact-field-label
+              {{field.label|title}}
+            .contact-field-value
+              {{field.value}}
+        -empty
+          -trans "No featured fields, click the arrow on the right to see other contact fields."
 
-      .normal.hide
-        -for field in contact_fields
-          -if field.value and not field.featured
-            .contact-field{data-id:'{{field.id}}'}
-              .contact-field-label
-                {{field.label|title}}
-              .contact-field-value
-                {{field.value}}
+      .normal.hide{style: 'border-top: 2px solid #999'}
+        -for field in normal_contact_fields
+          .contact-field{data-id:'{{field.id}}'}
+            .contact-field-label
+              {{field.label|title}}
+            .contact-field-value
+              {{field.value}}
+        -empty
+          -trans "No fields defined."
 
 
-  -if contact_fields|length > 4
+  -if featured_contact_fields or normal_contact_fields
     %a.pull-right.show-all.fields
       .icon-arrow-down
 
@@ -395,7 +404,7 @@
           }
 
           .contact-field {
-            display:inline-block;
+            display: inline-block;
             width: 260px;
             padding: 2px 10px;
 
@@ -460,13 +469,6 @@
         $(this).children('.short').show();
         $(this).children('.long').hide();
       });
-
-      // configure the number of contact fields to show
-      var featuredMax = 4;
-      var featuredCount = $('.featured .contact-field').size()
-      if (featuredCount < featuredMax) {
-        $('.normal .contact-field').slice(0, featuredMax-featuredCount).detach().appendTo('.featured')
-      }
     });
 
     function refreshRecents(){
