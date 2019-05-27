@@ -59,6 +59,10 @@ CACHES = {
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }
+    },
+    "collectfast": {
+        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+        "LOCATION": "collectfast_cache",
     }
 }
 
@@ -74,9 +78,9 @@ if DEBUG_TOOLBAR:
 # -----------------------------------------------------------------------------------
 # In development, add in extra logging for exceptions and the debug toolbar
 # -----------------------------------------------------------------------------------
-MIDDLEWARE_CLASSES = ('temba.middleware.ExceptionMiddleware',) + MIDDLEWARE_CLASSES
+MIDDLEWARE = ('temba.middleware.ExceptionMiddleware',) + MIDDLEWARE
 if DEBUG_TOOLBAR:
-    MIDDLEWARE_CLASSES = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE_CLASSES
+    MIDDLEWARE = ('debug_toolbar.middleware.DebugToolbarMiddleware',) + MIDDLEWARE
 
 # -----------------------------------------------------------------------------------
 # In development, perform background tasks in the web thread (synchronously)
@@ -97,12 +101,14 @@ warnings.filterwarnings('error', r"DateTimeField .* received a naive datetime",
 # -----------------------------------------------------------------------------------
 STATIC_URL = '/sitestatic/'
 MEDIA_URL = '/media/'
+STORAGE_URL = '/storage'
 
+COLLECTFAST_ENABLED = False
 COMPRESS_ENABLED = False
 COMPRESS_OFFLINE = False
 COMPRESS_DEBUG_TOGGLE = 'debug_compress'
 
-DEFAULT_FILE_STORAGE = 'textpower.storage_backends.SiteStaticStorage'
+DEFAULT_FILE_STORAGE = 'textpower.storage_backends.LocalStaticStorage'
 STATICFILES_STORAGE = DEFAULT_FILE_STORAGE 
 COMPRESS_STORAGE = DEFAULT_FILE_STORAGE
 COMPRESS_OFFLINE_CONTEXT = []

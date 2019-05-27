@@ -6,13 +6,13 @@ from __future__ import absolute_import, unicode_literals
 # The following are requirements:
 #     - `heroku stack:set heroku-18`
 #     - `heroku buildpacks:set heroku/python`
+#     - `heroku buildpacks:add --index 1 heroku/nodejs` so we can compile assets online
 #     - `heroku config:set BUILD_WITH_GEO_LIBRARIES=1`
-#     - `heroku config:set DISABLE_COLLECTSTATIC=1`
 #     - a PostgreSQL database at DATABASE_URL
 #     - a redis instance at REDIS_URL
 #     - Sendgrid or SMTP servers
 #     - S3 bucket at AWS_STORAGE_BUCKET_NAME
-#     - AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+#     - accessible with AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY at AWS_S3_REGION_NAME
 #     - SECRET KEY
 #
 # -----------------------------------------------------------------------------------
@@ -58,16 +58,17 @@ DEFAULT_BRAND = 'textpower'
 # Heroku filesystem is ephemeral, use S3 via boto
 # -----------------------------------------------------------------------------------
 
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
-AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
+AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
+AWS_S3_CUSTOM_DOMAIN = '%s.s3-%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_S3_REGION_NAME)
 
-AWS_STATIC_LOCATION = 'static'
-STATICFILES_STORAGE = 'textpower.storage_backends.StaticStorage'
-STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STATIC_LOCATION)
-
-AWS_MEDIA_LOCATION = 'media'
-DEFAULT_FILE_STORAGE = 'textpower.storage_backends.PrivateMediaStorage'
-MEDIA_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_MEDIA_LOCATION)
+DEFAULT_FILE_STORAGE = 'textpower.storage_backends.S3PublicStorage'
+AWS_STORAGE_LOCATION = 'static'
+STORAGE_URL = "https://%s/%s" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION) # no trailing slash
+STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION)
+STATICFILES_STORAGE = DEFAULT_FILE_STORAGE
 
 # deploy more quickly to S3 with collectfast
 # needs to be ahead of django.contrib.collectstatic
@@ -86,7 +87,7 @@ COMPRESS_PRECOMPILERS = (
     ('text/coffeescript', 'coffee --compile --stdio')
 )
 COMPRESS_CSS_HASHING_METHOD = 'content'
-COMPRESS_STORAGE = 'textpower.storage_backends.CachedStaticStorage'
+COMPRESS_STORAGE = 'textpower.storage_backends.CachedS3PublicStorage'
 COMPRESS_OFFLINE_CONTEXT = []
 for brand in BRANDING.values():
     if HOSTNAME == 'localhost' or 'staging' in HOSTNAME or brand.get('host', None) == HOSTNAME:
