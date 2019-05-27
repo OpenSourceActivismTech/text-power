@@ -13,6 +13,7 @@ smartmin
 
 ########################## services ##########################
 analytics-python
+awscli
 boto3
 librato_bg
 nexmo
