@@ -1,7 +1,6 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
-
-from temba.settings import SITEMAP
+from django.conf import settings
 
 from .models import Video
 
@@ -11,7 +10,7 @@ class PublicViewSitemap(Sitemap):
     changefreq = "daily"
 
     def items(self):
-        return SITEMAP
+        return settings.SITEMAP
 
     def location(self, item):
         return reverse(item)
