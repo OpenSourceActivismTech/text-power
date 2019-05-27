@@ -37,6 +37,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from temba.archives.models import Archive
 from temba.channels.models import Channel
+from temba.contacts.templatetags.contacts import MISSING_VALUE
 from temba.msgs.views import SendMessageForm
 from temba.orgs.views import ModalMixin, OrgObjPermsMixin, OrgPermsMixin
 from temba.utils import analytics, json, languages, on_transaction_commit
@@ -626,9 +627,7 @@ class ContactCRUDL(SmartCRUDL):
 
             def clean(self):
 
-                existing_contact_fields = ContactField.user_fields.filter(org=self.org, is_active=True).values(
-                    "key", "label"
-                )
+                existing_contact_fields = ContactField.user_fields.active_for_org(org=self.org).values("key", "label")
                 existing_contact_fields_map = {elt["label"]: elt["key"] for elt in existing_contact_fields}
 
                 used_labels = []
@@ -760,7 +759,7 @@ class ContactCRUDL(SmartCRUDL):
             contact_fields = sorted(
                 [
                     dict(id=elt["label"], text=elt["label"])
-                    for elt in ContactField.user_fields.filter(org=org, is_active=True).values("label")
+                    for elt in ContactField.user_fields.active_for_org(org=org).values("label")
                 ],
                 key=lambda k: k["text"].lower(),
             )
@@ -1041,24 +1040,40 @@ class ContactCRUDL(SmartCRUDL):
             Contact.bulk_cache_initialize(contact.org, [contact])
 
             # lookup all of our contact fields
-            contact_fields = []
-            fields = ContactField.user_fields.filter(org=contact.org, is_active=True).order_by("label", "pk")
+            all_contact_fields = []
+            fields = ContactField.user_fields.active_for_org(org=contact.org).order_by(
+                "-show_in_table", "-priority", "label", "pk"
+            )
+
             for field in fields:
                 value = contact.get_field_value(field)
-                if value:
-                    display = contact.get_field_display(field)
-                    contact_fields.append(
-                        dict(id=field.id, label=field.label, value=display, featured=field.show_in_table)
+
+                if field.show_in_table:
+                    if not (value):
+                        display = MISSING_VALUE
+                    else:
+                        display = contact.get_field_display(field)
+
+                    all_contact_fields.append(
+                        dict(id=field.id, label=field.label, value=display, show_in_table=field.show_in_table)
                     )
 
-            # stuff in the contact's language in the fields as well
+                else:
+                    display = contact.get_field_display(field)
+                    # add a contact field only if it has a value
+                    if display:
+                        all_contact_fields.append(
+                            dict(id=field.id, label=field.label, value=display, show_in_table=field.show_in_table)
+                        )
+
+            context["all_contact_fields"] = all_contact_fields
+
+            # add contact.language to the context
             if contact.language:
                 lang = languages.get_language_name(contact.language)
                 if not lang:
                     lang = contact.language
-                contact_fields.append(dict(label="Language", value=lang, featured=True))
-
-            context["contact_fields"] = sorted(contact_fields, key=lambda f: f["label"])
+                context["contact_language"] = lang
 
             # calculate time after which timeline should be repeatedly refreshed - five minutes ago lets us pick up
             # status changes on new messages
@@ -1224,9 +1239,7 @@ class ContactCRUDL(SmartCRUDL):
             org = self.request.user.get_org()
 
             context["actions"] = ("label", "block")
-            context["contact_fields"] = ContactField.user_fields.filter(org=org, is_active=True).order_by(
-                "-priority", "pk"
-            )
+            context["contact_fields"] = ContactField.user_fields.active_for_org(org=org).order_by("-priority", "pk")
             context["export_url"] = self.derive_export_url()
             return context
 
@@ -1290,9 +1303,7 @@ class ContactCRUDL(SmartCRUDL):
 
             context["actions"] = actions
             context["current_group"] = group
-            context["contact_fields"] = ContactField.user_fields.filter(org=org, is_active=True).order_by(
-                "-priority", "pk"
-            )
+            context["contact_fields"] = ContactField.user_fields.active_for_org(org=org).order_by("-priority", "pk")
             context["export_url"] = self.derive_export_url()
             return context
 
@@ -1660,10 +1671,9 @@ class ContactFieldFormMixin:
         if not ContactField.is_valid_label(label):
             raise forms.ValidationError(_("Field names can only contain letters, numbers and hypens"))
 
-        if (
-            self.instance.label != label
-            and ContactField.user_fields.filter(org=self.org, label__iexact=label.lower()).exists()
-        ):
+        cf_exists = ContactField.user_fields.active_for_org(org=self.org).filter(label__iexact=label.lower()).exists()
+
+        if self.instance.label != label and cf_exists is True:
             raise forms.ValidationError(_(f"Field names must be unique. '{label}' is duplicated"))
 
         if not ContactField.is_valid_key(ContactField.make_key(label)):

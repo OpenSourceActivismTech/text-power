@@ -28,6 +28,20 @@ class Template(models.Model):
     # when this template was created
     created_on = models.DateTimeField(default=timezone.now)
 
+    def is_approved(self):
+        """
+        Returns whether this template has at least one translation and all are approved
+        """
+        translations = self.translations.all()
+        if len(translations) == 0:
+            return False
+
+        for tr in translations:
+            if tr.status != TemplateTranslation.STATUS_APPROVED:
+                return False
+
+        return True
+
     class Meta:
         unique_together = ("org", "name")
 
@@ -39,8 +53,9 @@ class TemplateTranslation(models.Model):
 
     STATUS_APPROVED = "A"
     STATUS_PENDING = "P"
+    STATUS_REJECTED = "R"
 
-    STATUS_CHOICES = ((STATUS_APPROVED, "approved"), (STATUS_PENDING, "pending"))
+    STATUS_CHOICES = ((STATUS_APPROVED, "approved"), (STATUS_PENDING, "pending"), (STATUS_REJECTED, "rejected"))
 
     # the template this maps to
     template = models.ForeignKey(Template, on_delete=models.PROTECT, related_name="translations")
@@ -115,3 +130,6 @@ class TemplateTranslation(models.Model):
                 existing.template.save(update_fields=["modified_on"])
 
         return existing
+
+    def __str__(self):
+        return f"{self.template.name} ({self.language}) {self.status}: {self.content}"

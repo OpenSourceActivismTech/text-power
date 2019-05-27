@@ -9,7 +9,7 @@ from django.utils import timezone
 
 from temba.campaigns.tasks import check_campaigns_task
 from temba.contacts.models import Contact, ContactField, ContactGroup, ImportTask
-from temba.flows.models import ActionSet, Flow, FlowRevision, FlowRun, FlowStart, RuleSet
+from temba.flows.models import ActionSet, Flow, FlowRevision, FlowRun, FlowStart
 from temba.msgs.models import Msg
 from temba.orgs.models import Language, Org, get_current_export_version
 from temba.tests import ESMockWithScroll, TembaTest
@@ -568,7 +568,6 @@ class CampaignTest(TembaTest):
         msg = entry.get_actions()[0].msg
         self.assertEqual(flow.base_language, "base")
         self.assertEqual(msg, {"base": "This is my message", "spa": "hola"})
-        self.assertFalse(RuleSet.objects.filter(flow=flow))
 
         self.assertEqual(-1, event.offset)
         self.assertEqual(13, event.delivery_hour)
@@ -1275,7 +1274,7 @@ class CampaignTest(TembaTest):
         self.assertIsNotNone(ev2.get_relative_to_value())
 
         # recalculate for created on
-        EventFire.update_field_events(field_created_on)
+        EventFire.update_campaign_events(campaign)
         self.assertEqual(2, EventFire.objects.filter(event__relative_to=field_created_on, fired=None).count())
 
     def test_campaignevent_calculate_scheduled_fire(self):
@@ -1611,28 +1610,6 @@ class CampaignTest(TembaTest):
 
         # should have updated
         fire = EventFire.objects.get(event__is_active=True)
-        self.assertEqual(planting_reminder, fire.event)
-        self.assertEqual(9, fire.scheduled.day)
-
-        # "hide" planting reminder Campaign, in order to hide the "planting_date" field
-        planting_reminder.is_active = False
-        planting_reminder.save(update_fields=("is_active",))
-
-        # let's remove our contact field
-        ContactField.hide_field(self.org, self.user, "planting_date")
-
-        # shouldn't have anything scheduled
-        self.assertFalse(EventFire.objects.all())
-
-        # "actvate" planting reminder Campaign, in order to update EventFire objects
-        planting_reminder.is_active = True
-        planting_reminder.save(update_fields=("is_active",))
-
-        # add it back in
-        ContactField.get_or_create(self.org, self.admin, "planting_date", "planting Date")
-
-        # should be back!
-        fire = EventFire.objects.get()
         self.assertEqual(planting_reminder, fire.event)
         self.assertEqual(9, fire.scheduled.day)
 

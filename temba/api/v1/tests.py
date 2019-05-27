@@ -135,14 +135,6 @@ class APITest(TembaTest):
 
         return
 
-    def assertResponseError(self, response, field, message, status_code=400):
-        self.assertEqual(status_code, response.status_code)
-
-        body = response.json()
-        self.assertTrue(message, field in body)
-        self.assertTrue(message, isinstance(body[field], (list, tuple)))
-        self.assertIn(message, body[field])
-
     def assert403(self, url):
         response = self.fetchHTML(url)
         self.assertEqual(403, response.status_code)
@@ -1564,7 +1556,7 @@ class APITest(TembaTest):
         response = self.postJSON(url, dict(phone="+250788123456", fields={"state": "VA"}))
         contact.refresh_from_db()
         self.assertEqual(response.status_code, 201)
-        self.assertEqual("VA", contact.get_field_value(state))  # unchanged
+        self.assertEqual("IL", contact.get_field_value(state))  # unchanged
 
         drdre = Contact.objects.get()
 

@@ -127,7 +127,9 @@ TESTFILES_DIR = os.path.join(PROJECT_DIR, "../testfiles")
 STATICFILES_DIRS = (
     os.path.join(PROJECT_DIR, "../static"),
     os.path.join(PROJECT_DIR, "../media"),
-    os.path.join(PROJECT_DIR, "../node_modules/@nyaruka/flow-editor/umd"),
+    os.path.join(PROJECT_DIR, "../node_modules/@nyaruka/flow-editor/build"),
+    os.path.join(PROJECT_DIR, "../node_modules/react/umd"),
+    os.path.join(PROJECT_DIR, "../node_modules/react-dom/umd"),
 )
 STATIC_ROOT = os.path.join(PROJECT_DIR, "../sitestatic")
 STATIC_URL = "/sitestatic/"
@@ -484,7 +486,6 @@ GROUP_PERMISSIONS = {
         "apks.apk_update",
         "campaigns.campaign_read",
         "channels.channel_configuration",
-        "channels.channel_history",
         "channels.channel_read",
         "contacts.contact_break_anon",
         "contacts.contact_read",
@@ -759,6 +760,7 @@ GROUP_PERMISSIONS = {
         "flows.flow_json",
         "flows.flow_recent_messages",
         "flows.flow_results",
+        "flows.flow_revisions",
         "flows.flow_run_table",
         "flows.flow_simulate",
         "msgs.broadcast_schedule_list",
@@ -842,7 +844,6 @@ CELERYBEAT_SCHEDULE = {
     "task_enqueue_call_events": {"task": "task_enqueue_call_events", "schedule": timedelta(seconds=300)},
     "check-elasticsearch-lag": {"task": "check_elasticsearch_lag", "schedule": timedelta(seconds=300)},
     "fail-old-messages": {"task": "fail_old_messages", "schedule": crontab(hour=0, minute=0)},
-    "clear-old-msg-external-ids": {"task": "clear_old_msg_external_ids", "schedule": crontab(hour=2, minute=0)},
     "trim-channel-log": {"task": "trim_channel_log_task", "schedule": crontab(hour=3, minute=0)},
     "trim-webhook-event": {"task": "trim_webhook_event_task", "schedule": crontab(hour=3, minute=0)},
     "trim-event-fires": {"task": "trim_event_fires_task", "schedule": timedelta(seconds=900)},
@@ -857,6 +858,7 @@ CELERYBEAT_SCHEDULE = {
     "refresh-jiochat-access-tokens": {"task": "refresh_jiochat_access_tokens", "schedule": timedelta(seconds=3600)},
     "refresh-wechat-access-tokens": {"task": "refresh_wechat_access_tokens", "schedule": timedelta(seconds=3600)},
     "refresh-whatsapp-tokens": {"task": "refresh_whatsapp_tokens", "schedule": timedelta(hours=24)},
+    "refresh-whatsapp-templates": {"task": "refresh_whatsapp_templates", "schedule": timedelta(seconds=900)},
 }
 
 # Mapping of task name to task function path, used when CELERY_ALWAYS_EAGER is set to True
@@ -1013,6 +1015,7 @@ CHANNEL_TYPES = [
     "temba.channels.types.firebase.FirebaseCloudMessagingType",
     "temba.channels.types.globe.GlobeType",
     "temba.channels.types.highconnection.HighConnectionType",
+    "temba.channels.types.hormuud.HormuudType",
     "temba.channels.types.hub9.Hub9Type",
     "temba.channels.types.infobip.InfobipType",
     "temba.channels.types.jasmin.JasminType",

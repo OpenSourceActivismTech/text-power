@@ -1,3 +1,108 @@
+v4.22.51
+----------
+ * Update to flow-editor 1.5.3
+
+v4.22.50
+----------
+ * Update to floweditor v1.5.2
+
+v4.22.49
+----------
+ * Only do mailroom validation on new flows
+
+v4.22.48
+----------
+ * Fix 11.12 migration and importing flows when flow contains a reference to a channel in a different org
+ * Make WhatsApp endpoint configurable, either FB or self-hosted
+
+v4.22.47
+----------
+ * tweak to WA language mapping
+
+v4.22.46
+----------
+ * add hormuud channel type
+ * newest editor
+ * update invitation secret when user is re-invited
+
+v4.22.45
+----------
+ * Tweak compress for vendor
+
+v4.22.44
+----------
+ * Update to flow editor 1.4.18
+ * Add mailroom endpoints for functions, tweak styles for selection
+ * Honor is_active when creating contact fields
+ * Cache busting for flow editor
+
+v4.22.43
+----------
+ * Update flow editor to 1.4.17
+ * Warn users when starting a flow when they have a WhatsApp channel that they should use templates
+
+v4.22.42
+----------
+ * add page to view synched WhatsApp templates for a channel
+
+v4.22.41
+----------
+ * Update flow editor to 1.4.16
+ * View absolute attachments in old editor
+
+v4.22.40
+----------
+ * Update editor to 1.4.14
+
+v4.22.39
+----------
+ * latest editor
+
+v4.22.38
+----------
+ * update defs with db values both when writing and reading
+ * remove clearing of external ids for messages
+
+v4.22.37
+----------
+ * Update to flow-editor 1.4.12
+ * Remove footer gap on new editor
+
+v4.22.36
+----------
+ * allow Alpha users to build flows in new editor
+ * don't use RuleSets in figuring results, exports, categories
+
+v4.22.28
+----------
+ * Adjust `!=` search operator to include unset data
+ * Remove broadcast recipients table
+ * IMPORTANT * You must make sure that all purged broadcasts have been archived using
+   rp-archiver v1.0.2 before deploying this version of RapidPro
+
+v4.22.27
+----------
+ * styling tweaks to contacts page
+
+v4.22.26
+----------
+ * Always show featured ContactFields on Contact.read page
+ * Do not migrate ruleset with label null and action msg text null
+
+v4.22.25
+----------
+ * only show pagination warning when we have more than 10k results
+
+v4.22.24
+----------
+ * support != search operator
+
+v4.22.23
+----------
+ * simplify squashing of squashable models
+ * show a notification when users open the last page of the search
+ * update `modified_on` once msgs export is finished
+
 v4.22.22
 ----------
  * Fix issue with pagination when editing custom fields

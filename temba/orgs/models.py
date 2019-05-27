@@ -3,7 +3,6 @@ import itertools
 import logging
 import mimetypes
 import os
-import random
 import re
 from collections import OrderedDict, defaultdict
 from datetime import datetime, timedelta
@@ -1724,7 +1723,7 @@ class Org(SmartModel):
 
         # build an ordered dictionary of key->contact field
         fields = OrderedDict()
-        for cf in ContactField.user_fields.filter(org=self, is_active=True).order_by("key"):
+        for cf in ContactField.user_fields.active_for_org(org=self).order_by("key"):
             cf.org = self
             fields[cf.key] = cf
 
@@ -2196,7 +2195,7 @@ class Org(SmartModel):
         self.airtime_transfers.all().delete()
 
         # delete our contacts
-        for contact in self.org_contacts.all():
+        for contact in self.contacts.all():
             contact.release(contact.modified_by)
             contact.delete()
 
@@ -2490,14 +2489,6 @@ class Invitation(SmartModel):
             self.secret = secret
 
         return super().save(*args, **kwargs)
-
-    @classmethod
-    def generate_random_string(cls, length):  # pragma: needs cover
-        """
-        Generates a [length] characters alpha numeric secret
-        """
-        letters = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ"  # avoid things that could be mistaken ex: 'I' and '1'
-        return "".join([random.choice(letters) for _ in range(length)])
 
     def send_invitation(self):
         from .tasks import send_invitation_email_task
