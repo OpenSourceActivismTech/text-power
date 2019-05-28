@@ -48,9 +48,10 @@ custom['email'] = 'josh@opensourceactivism.tech'
 custom['support_email'] = 'josh@opensourceactivism.tech'
 custom['allow_signups'] = True
 custom['host'] = os.environ.get('APPLICATION_HOSTNAME')
-custom['description'] = "Visually build activism messaging applications with open source software."
-custom['splash'] = 'brands/textpower/splash.jpg'
-custom['styles'] = ['brands/rapidpro/font/style.css',]
+custom['description'] = "Messaging Activism for Organizations and Campaigns"
+custom['splash'] = 'brands/textpower/splash.png'
+custom['styles'] = ['brands/textpower/style.css',]
+custom["credits"] = ("AGPL 2012-2019 <a href='https://rapidpro.io'>RapidPro.io</a>, <a href='https://OpenSourceActivism.tech'>OpenSourceActivism.tech</a>")
 BRANDING['textpower'] = custom
 DEFAULT_BRAND = 'textpower'
 
