@@ -81,7 +81,7 @@ COLLECTFAST_CACHE = 'collectfast'
 # -----------------------------------------------------------------------------------
 
 COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = True
+COMPRESS_OFFLINE = False
 COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc --include-path="%s" {infile} {outfile}' % os.path.join(PROJECT_DIR, '../static', 'less')),
     ('text/coffeescript', 'coffee --compile --stdio')
@@ -94,6 +94,7 @@ for brand in BRANDING.values():
         context = dict(STATIC_URL=STATIC_URL, base_template='frame.html', debug=False, testing=False)
         context['brand'] = dict(slug=brand['slug'], styles=brand['styles'], splash=brand['splash'])
         COMPRESS_OFFLINE_CONTEXT.append(context)
+COMPRESS_URL = STATIC_URL
 
 MIDDLEWARE = (
     'whitenoise.middleware.WhiteNoiseMiddleware',
