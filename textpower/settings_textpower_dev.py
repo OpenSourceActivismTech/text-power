@@ -66,7 +66,7 @@ CACHES = {
     }
 }
 
-INTERNAL_IPS = ('127.0.0.1',)
+INTERNAL_IPS = ['*',]
 
 # -----------------------------------------------------------------------------------
 # Load development apps
@@ -100,13 +100,12 @@ warnings.filterwarnings('error', r"DateTimeField .* received a naive datetime",
 # Reset static file compression and storage on development
 # -----------------------------------------------------------------------------------
 STATIC_URL = '/sitestatic/'
-MEDIA_URL = '/media/'
-STORAGE_URL = '/storage'
+STORAGE_URL = 'localhost:8000/sitestatic'
+COMPRESS_URL = STATIC_URL+'/'
 
 COLLECTFAST_ENABLED = False
 COMPRESS_ENABLED = False
 COMPRESS_OFFLINE = False
-COMPRESS_DEBUG_TOGGLE = 'debug_compress'
 
 DEFAULT_FILE_STORAGE = 'textpower.storage_backends.LocalStaticStorage'
 STATICFILES_STORAGE = DEFAULT_FILE_STORAGE 

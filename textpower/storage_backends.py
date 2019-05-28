@@ -28,5 +28,5 @@ class CachedS3PublicStorage(S3PublicStorage):
         return name
 
 class LocalStaticStorage(FileSystemStorage):
-    base_url = settings.STATIC_ROOT
+    base_url = settings.STATIC_URL
     preload_metadata = False # so collectfast doesn't throw an error
