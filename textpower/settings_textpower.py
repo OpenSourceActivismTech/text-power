@@ -76,6 +76,7 @@ STATICFILES_STORAGE = DEFAULT_FILE_STORAGE
 INSTALLED_APPS = ('collectfast',) + INSTALLED_APPS
 AWS_PRELOAD_METADATA = True
 COLLECTFAST_CACHE = 'collectfast'
+COLLECTFAST_THREADS = 20
 
 # -----------------------------------------------------------------------------------
 # Static files compression and hosting
