@@ -152,6 +152,8 @@ EMAIL_USE_TLS = True
 
 DEFAULT_FROM_EMAIL = 'admin@opensourceactivism.tech'
 
+ELASTICSEARCH_URL = os.environ.get("BONSAI_URL", "http://localhost:9200")
+
 # -----------------------------------------------------------------------------------
 # RapidPro configuration settings
 # -----------------------------------------------------------------------------------
