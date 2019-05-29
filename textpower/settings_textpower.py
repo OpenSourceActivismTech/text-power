@@ -63,12 +63,18 @@ AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
 AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.environ.get('AWS_S3_REGION_NAME', 'us-east-1')
-AWS_S3_CUSTOM_DOMAIN = '%s.s3-%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_S3_REGION_NAME)
 
-DEFAULT_FILE_STORAGE = 'textpower.storage_backends.S3PublicStorage'
-AWS_STORAGE_LOCATION = 'static'
+CLOUDFRONT_DOMAIN = os.environ.get('CLOUDFRONT_DOMAIN')
+if CLOUDFRONT_DOMAIN:
+    AWS_S3_CUSTOM_DOMAIN = CLOUDFRONT_DOMAIN
+    AWS_STORAGE_LOCATION = os.environ.get('CLOUDFRONT_DIRECTORY', '')
+else:
+    AWS_S3_CUSTOM_DOMAIN = '%s.s3-%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_S3_REGION_NAME)
+    AWS_STORAGE_LOCATION = 'static'
 STORAGE_URL = "https://%s/%s" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION) # no trailing slash
 STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION)
+
+DEFAULT_FILE_STORAGE = 'textpower.storage_backends.S3PublicStorage'
 STATICFILES_STORAGE = DEFAULT_FILE_STORAGE
 
 # deploy more quickly to S3 with collectfast
