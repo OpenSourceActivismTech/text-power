@@ -71,8 +71,13 @@ if CLOUDFRONT_DOMAIN:
 else:
     AWS_S3_CUSTOM_DOMAIN = '%s.s3-%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_S3_REGION_NAME)
     AWS_STORAGE_LOCATION = 'static'
-STORAGE_URL = "https://%s/%s" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION) # no trailing slash
-STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION)
+
+if AWS_STORAGE_LOCATION:
+    STORAGE_URL = "https://%s/%s" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION) # no trailing slash
+    STATIC_URL = "https://%s/%s/" % (AWS_S3_CUSTOM_DOMAIN, AWS_STORAGE_LOCATION)
+else:
+    STORAGE_URL = "https://%s" % AWS_S3_CUSTOM_DOMAIN
+    STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
 
 DEFAULT_FILE_STORAGE = 'textpower.storage_backends.S3PublicStorage'
 STATICFILES_STORAGE = DEFAULT_FILE_STORAGE

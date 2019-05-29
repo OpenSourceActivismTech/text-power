@@ -101,7 +101,7 @@ warnings.filterwarnings('error', r"DateTimeField .* received a naive datetime",
 # -----------------------------------------------------------------------------------
 STATIC_URL = '/sitestatic/'
 STORAGE_URL = 'localhost:8000/sitestatic'
-COMPRESS_URL = STATIC_URL+'/'
+COMPRESS_URL = STORAGE_URL+'/'
 
 COLLECTFAST_ENABLED = False
 COMPRESS_ENABLED = False
