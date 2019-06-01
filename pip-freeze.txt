@@ -65,7 +65,7 @@ oauthlib==2.0.2           # via requests-oauthlib
 openpyxl==2.5.3
 packaging==19.0
 phonenumbers
-pip-tools==3.5.0
+pip-tools==3.7.0
 psycopg2-binary==2.7.7
 pyasn1==0.4.5             # via rsa
 pycodestyle==2.5.0        # via flake8
