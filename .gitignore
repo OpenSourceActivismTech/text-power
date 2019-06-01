@@ -122,3 +122,4 @@ ansible/site.retry
 
 # VS Code projects
 .vscode/
+media/CACHE
