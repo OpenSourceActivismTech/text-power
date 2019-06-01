@@ -1,3 +1,28 @@
+v4.22.60
+----------
+ * Update flow editor to 1.5.4
+ * Allow imports and exports of v13 flows
+
+v4.22.55
+----------
+ * Enable export of new flows
+ * Update Nexmo supported countries list
+
+v4.22.54
+----------
+ * rename migration, better printing
+
+v4.22.53
+----------
+ * add migration to repopulate metadata for all flows
+
+v4.22.52
+----------
+ * Expose result specs in flow metadata on flows API endpoint
+ * Use Temba JSON adapter when reading JSON data from DB
+ * Don't update TwiML channel when claiming it
+ * Use most recent topup for credit transfers between orgs
+
 v4.22.51
 ----------
  * Update to flow-editor 1.5.3
