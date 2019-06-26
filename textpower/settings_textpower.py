@@ -94,7 +94,7 @@ COLLECTFAST_THREADS = 20
 # -----------------------------------------------------------------------------------
 
 COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = True
+COMPRESS_OFFLINE = False
 COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc --include-path="%s" {infile} {outfile}' % os.path.join(PROJECT_DIR, '../static', 'less')),
     ('text/coffeescript', 'coffee --compile --stdio')
