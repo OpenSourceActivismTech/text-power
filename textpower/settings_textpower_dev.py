@@ -20,6 +20,7 @@ from .settings_textpower import *  # noqa
 IS_PROD = False
 DEBUG = True
 DEBUG_TOOLBAR = True
+SECURE_SSL_REDIRECT = False
 
 HOSTNAME = 'spacedogxyz.ngrok.io'
 ALLOWED_HOSTS = ['*']

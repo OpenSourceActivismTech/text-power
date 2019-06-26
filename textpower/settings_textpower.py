@@ -46,7 +46,7 @@ custom['domain'] = os.environ.get('APPLICATION_HOSTNAME')
 custom['link'] = 'https://%s' % os.environ.get('APPLICATION_HOSTNAME')
 custom['email'] = 'josh@opensourceactivism.tech'
 custom['support_email'] = 'josh@opensourceactivism.tech'
-custom['allow_signups'] = True
+custom['allow_signups'] = False
 custom['host'] = os.environ.get('APPLICATION_HOSTNAME')
 custom['description'] = "Messaging Activism for Organizations and Campaigns"
 custom['splash'] = 'brands/textpower/splash.png'
@@ -94,7 +94,7 @@ COLLECTFAST_THREADS = 20
 # -----------------------------------------------------------------------------------
 
 COMPRESS_ENABLED = True
-COMPRESS_OFFLINE = False
+COMPRESS_OFFLINE = True
 COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc --include-path="%s" {infile} {outfile}' % os.path.join(PROJECT_DIR, '../static', 'less')),
     ('text/coffeescript', 'coffee --compile --stdio')
