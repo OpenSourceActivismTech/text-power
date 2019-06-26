@@ -43,7 +43,7 @@ from temba.flows.server.serialize import serialize_environment, serialize_langua
 from temba.flows.tasks import export_flow_results_task
 from temba.ivr.models import IVRCall
 from temba.mailroom import FlowValidationException
-from temba.orgs.models import Org, get_current_export_version
+from temba.orgs.models import Org
 from temba.orgs.views import ModalMixin, OrgObjPermsMixin, OrgPermsMixin
 from temba.templates.models import Template
 from temba.triggers.models import Trigger
@@ -114,8 +114,11 @@ class BaseFlowForm(forms.ModelForm):
 
         if wrong_format:
             raise forms.ValidationError(
-                _('"%s" must be a single word, less than %d characters, containing only letter ' "and numbers")
-                % (", ".join(wrong_format), Trigger.KEYWORD_MAX_LEN)
+                _(
+                    '"%(keyword)s" must be a single word, less than %(limit)d characters, containing only letter '
+                    "and numbers"
+                )
+                % dict(keyword=", ".join(wrong_format), limit=Trigger.KEYWORD_MAX_LEN)
             )
 
         if duplicates:
@@ -1033,12 +1036,13 @@ class FlowCRUDL(SmartCRUDL):
         slug_url_kwarg = "uuid"
 
         def get(self, request, *args, **kwargs):
+            flow = self.get_object()
+            if "legacy" in self.request.GET:
+                flow.version_number = Flow.FINAL_LEGACY_VERSION
+                flow.save(update_fields=("version_number",))
 
             # require update permissions
-            if (
-                Version(self.get_object().version_number) >= Version(Flow.GOFLOW_VERSION)
-                and "legacy" not in self.request.GET
-            ):
+            if Version(flow.version_number) >= Version(Flow.GOFLOW_VERSION):
                 return HttpResponseRedirect(reverse("flows.flow_editor_next", args=[self.get_object().uuid]))
 
             return super().get(request, *args, **kwargs)
@@ -1055,7 +1059,7 @@ class FlowCRUDL(SmartCRUDL):
             flow = self.object
             org = self.request.user.get_org()
 
-            context["flow_version"] = get_current_export_version()
+            context["flow_version"] = Flow.FINAL_LEGACY_VERSION
             flow.ensure_current_version()
 
             if org:
@@ -1118,6 +1122,15 @@ class FlowCRUDL(SmartCRUDL):
             if self.has_org_perm("flows.flow_delete"):
                 links.append(dict(title=_("Delete"), js_class="delete-flow", href="#"))
 
+            links.append(dict(divider=True))
+            links.append(
+                dict(
+                    title=_("New Editor"),
+                    flag="beta",
+                    href=f'{reverse("flows.flow_editor_next", args=[flow.uuid])}?migrate=1',
+                )
+            )
+
             user = self.get_user()
             if user.is_superuser or user.is_staff:
                 if len(links) > 1:
@@ -1145,7 +1158,8 @@ class FlowCRUDL(SmartCRUDL):
             context = super().get_context_data(*args, **kwargs)
 
             dev_mode = getattr(settings, "EDITOR_DEV_MODE", False)
-            prefix = "dev/" if dev_mode else ""
+            getattr(settings, "EDITOR_DEV_MODE", False)
+            prefix = "/dev" if dev_mode else settings.STATIC_URL
 
             # get our list of assets to incude
             scripts = []
@@ -1179,6 +1193,7 @@ class FlowCRUDL(SmartCRUDL):
 
             context["scripts"] = scripts
             context["styles"] = styles
+            context["migrate"] = "migrate" in self.request.GET
 
             if flow.is_archived:
                 context["mutable"] = False
@@ -1196,6 +1211,9 @@ class FlowCRUDL(SmartCRUDL):
         def get_gear_links(self):
             links = []
             flow = self.object
+
+            versions = Flow.get_versions_before(Flow.GOFLOW_VERSION)
+            has_legacy_revision = flow.revisions.filter(spec_version__in=versions).exists()
 
             if (
                 flow.flow_type != Flow.TYPE_SURVEY
@@ -1236,6 +1254,10 @@ class FlowCRUDL(SmartCRUDL):
                     )
                 )
 
+            # show previous editor option if we have a legacy revision
+            if has_legacy_revision:
+                links.append(dict(divider=True))
+                links.append(dict(title=_("Previous Editor"), js_class="previous-editor", href="#"))
             return links
 
     class ExportResults(ModalMixin, OrgPermsMixin, SmartFormView):
