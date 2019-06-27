@@ -93,7 +93,7 @@ COLLECTFAST_THREADS = 20
 # Static files compression and hosting
 # -----------------------------------------------------------------------------------
 
-COMPRESS_ENABLED = True
+COMPRESS_ENABLED = False
 COMPRESS_OFFLINE = False
 COMPRESS_PRECOMPILERS = (
     ('text/less', 'lessc --include-path="%s" {infile} {outfile}' % os.path.join(PROJECT_DIR, '../static', 'less')),
